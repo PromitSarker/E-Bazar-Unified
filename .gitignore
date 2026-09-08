@@ -1,0 +1,4 @@
+# Antigravity/Gemini local config & skills
+.agents/
+.gemini/
+skills-lock.json

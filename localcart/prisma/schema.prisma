@@ -1,0 +1,253 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  SHOP_OWNER
+  ADMIN
+}
+
+enum ShopStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum OrderStatus {
+  PLACED
+  ACCEPTED
+  PREPARING
+  OUT_FOR_DELIVERY
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+enum PaymentMethod {
+  CASH
+  SSLCOMMERZ
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+  COD
+}
+
+enum ReportTargetType {
+  ORDER
+  SHOP
+  USER
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customerProfile CustomerProfile?
+  shop            Shop?
+  orders          Order[]          @relation("CustomerOrders")
+  reviews         Review[]
+  reports         Report[]
+
+  @@map("users")
+}
+
+model CustomerProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  defaultAddress String?
+  latitude       Float?
+  longitude      Float?
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model Shop {
+  id               String     @id @default(cuid())
+  ownerId          String     @unique
+  name             String
+  categoryId       String?
+  address          String
+  latitude         Float
+  longitude        Float
+  phone            String
+  operatingHours   Json?      // { mon: {open:"08:00",close:"22:00"}, ... }
+  deliveryRadiusKm Float      @default(5)
+  deliveryFee      Float      @default(0)
+  minOrderAmount   Float      @default(0)
+  status           ShopStatus @default(PENDING)
+  isOpen           Boolean    @default(true)
+  ratingAvg        Float      @default(0)
+  ratingCount      Int        @default(0)
+  rejectionReason  String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  items       Item[]
+  pickupSlots PickupSlot[]
+  orders      Order[]
+  reviews     Review[]
+  reports     Report[]
+
+  @@map("shops")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  shops Shop[]
+  items Item[]
+
+  @@map("categories")
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  shopId      String
+  name        String
+  categoryId  String?
+  unit        String   // kg, pcs, liter, dozen, pack, etc.
+  price       Float
+  stockQty    Int      @default(0)
+  photoUrl    String?
+  inStock     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shop       Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category   Category?  @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("items")
+}
+
+model PickupSlot {
+  id          String   @id @default(cuid())
+  shopId      String
+  dayOfWeek   Int?     // 0=Sunday ... 6=Saturday; null means specific date
+  specificDate DateTime? // for one-off date overrides
+  startTime   String   // "HH:MM" 24h format
+  endTime     String   // "HH:MM" 24h format
+  maxOrders   Int      @default(10)
+  createdAt   DateTime @default(now())
+
+  shop   Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("pickup_slots")
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  customerId       String
+  shopId           String
+  type             OrderType
+  status           OrderStatus   @default(PLACED)
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus @default(UNPAID)
+  deliveryAddress  String?
+  deliveryLat      Float?
+  deliveryLng      Float?
+  pickupSlotId     String?
+  deliveryFee      Float         @default(0)
+  subtotal         Float
+  total            Float
+  rejectionReason  String?
+  sslTransactionId String?
+  sslValId         String?
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  customer   User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  shop       Shop        @relation(fields: [shopId], references: [id])
+  pickupSlot PickupSlot? @relation(fields: [pickupSlotId], references: [id])
+  items      OrderItem[]
+  review     Review?
+  reports    Report[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                String @id @default(cuid())
+  orderId           String
+  itemId            String
+  itemNameSnapshot  String
+  unitPriceSnapshot Float
+  quantity          Int
+  lineTotal         Float
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item  Item  @relation(fields: [itemId], references: [id])
+
+  @@map("order_items")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  orderId    String   @unique
+  customerId String
+  shopId     String
+  rating     Int      // 1–5
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  order    Order @relation(fields: [orderId], references: [id])
+  customer User  @relation(fields: [customerId], references: [id])
+  shop     Shop  @relation(fields: [shopId], references: [id])
+
+  @@map("reviews")
+}
+
+model Report {
+  id           String           @id @default(cuid())
+  reporterId   String
+  targetType   ReportTargetType
+  targetShopId String?
+  targetOrderId String?
+  reason       String
+  resolved     Boolean          @default(false)
+  resolvedNote String?
+  createdAt    DateTime         @default(now())
+
+  reporter    User   @relation(fields: [reporterId], references: [id])
+  targetShop  Shop?  @relation(fields: [targetShopId], references: [id])
+  targetOrder Order? @relation(fields: [targetOrderId], references: [id])
+
+  @@map("reports")
+}

@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 # --- Stage 2: Build the Next.js app -------------------------------------------
 FROM node:20-alpine AS builder
@@ -29,6 +29,8 @@ ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+# Copy all runtime node_modules (including ts-node) for seed scripts and any other runtime tools
+COPY --from=builder /app/node_modules ./node_modules
 
 # Copy Prisma for runtime migrations
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma

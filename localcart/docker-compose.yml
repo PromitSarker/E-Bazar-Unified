@@ -29,6 +29,9 @@ services:
       # Override host to use Docker service name instead of localhost
       DATABASE_URL: "postgresql://localcart:localcart_secret@db:5432/localcart"
       DB_HOST: "db"
+      # Set to 'true' only after adding SSL/HTTPS (nginx + certbot)
+      HTTPS_ENABLED: "false"
+      NEXT_PUBLIC_BASE_URL: "http://YOUR_VPS_IP:3010"
     depends_on:
       db:
         condition: service_healthy

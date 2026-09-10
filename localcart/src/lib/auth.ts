@@ -48,7 +48,10 @@ export function createAuthCookie(token: string) {
     name: 'auth_token',
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // Only set Secure flag when actually running over HTTPS.
+    // In production over plain HTTP (e.g. VPS without SSL), Secure:true
+    // causes browsers to silently drop the cookie, breaking login.
+    secure: process.env.HTTPS_ENABLED === 'true',
     sameSite: 'lax' as const,
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',

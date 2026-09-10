@@ -81,7 +81,6 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </div>
 
       <footer className="bg-[#222222] text-[#faf8f5] py-12 relative z-10 border-t-4 border-[#c44d32]">
         <div className="max-w-6xl mx-auto px-4 text-center">

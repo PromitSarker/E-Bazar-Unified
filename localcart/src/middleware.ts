@@ -37,13 +37,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Role-based route protection
-  if (ADMIN_PATHS.some(p => pathname.startsWith(p))) {
+  if (ADMIN_PATHS.some(p => pathname === p || pathname.startsWith(`${p}/`))) {
     if (session.role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
 
-  if (SHOP_OWNER_PATHS.some(p => pathname.startsWith(p))) {
+  if (SHOP_OWNER_PATHS.some(p => pathname === p || pathname.startsWith(`${p}/`))) {
     if (session.role !== 'SHOP_OWNER') {
       return NextResponse.redirect(new URL('/', request.url))
     }

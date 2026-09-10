@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  postgres:
+  db:
     image: postgres:16-alpine
     container_name: localcart_db
     restart: unless-stopped
@@ -9,10 +7,31 @@ services:
       POSTGRES_USER: localcart
       POSTGRES_PASSWORD: localcart_secret
       POSTGRES_DB: localcart
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localcart -d localcart"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: localcart_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Override host to use Docker service name instead of localhost
+      DATABASE_URL: "postgresql://localcart:localcart_secret@db:5432/localcart"
+      DB_HOST: "db"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

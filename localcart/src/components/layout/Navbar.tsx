@@ -155,3 +155,23 @@ export function AdminNavbar() {
     </nav>
   )
 }
+
+export function MainNavbar() {
+  return (
+    <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#eeb211]/20 shadow-sm transition-all">
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+        <Link href="/" className="text-xl font-extrabold text-[#c44d32] tracking-tight drop-shadow-sm">
+          LocalCart
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="text-sm font-semibold text-gray-700 hover:text-[#c44d32] transition-colors">
+            Sign in
+          </Link>
+          <Link href="/signup?role=CUSTOMER" className="text-sm font-bold bg-[#c44d32] text-white px-5 py-2 rounded-full hover:bg-[#a63f28] hover:-translate-y-0.5 transition-all shadow-md shadow-[#c44d32]/20">
+            Get Started
+          </Link>
+        </div>
+      </div>
+    </nav>
+  )
+}

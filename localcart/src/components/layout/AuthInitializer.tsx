@@ -5,9 +5,10 @@ import { useAuthStore } from '@/store/auth'
 
 /**
  * Runs on mount — fetches /api/auth/me to sync server session into client Zustand store.
+ * Sets hasHydrated=true when done so AuthGuard knows it's safe to make redirect decisions.
  */
 export function AuthInitializer() {
-  const { setUser, setLoading } = useAuthStore()
+  const { setUser, setLoading, setHasHydrated } = useAuthStore()
 
   useEffect(() => {
     setLoading(true)
@@ -17,8 +18,11 @@ export function AuthInitializer() {
         setUser(data?.user ?? null)
       })
       .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [setUser, setLoading])
+      .finally(() => {
+        setLoading(false)
+        setHasHydrated(true)
+      })
+  }, [setUser, setLoading, setHasHydrated])
 
   return null
 }

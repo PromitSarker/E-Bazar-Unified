@@ -1,8 +1,24 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { MainNavbar } from '@/components/layout/Navbar'
+import { useAuthStore } from '@/store/auth'
 
 export default function LandingPage() {
+  const { user, hasHydrated } = useAuthStore()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!hasHydrated) return
+    if (!user) return
+    if (user.role === 'ADMIN') router.replace('/admin')
+    else if (user.role === 'SHOP_OWNER') router.replace('/shop/dashboard')
+    else router.replace('/shops')
+  }, [hasHydrated, user, router])
+
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#faf8f5]">
       <MainNavbar />

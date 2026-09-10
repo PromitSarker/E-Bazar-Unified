@@ -16,8 +16,10 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null
   isLoading: boolean
+  hasHydrated: boolean
   setUser: (user: AuthUser | null) => void
   setLoading: (loading: boolean) => void
+  setHasHydrated: (v: boolean) => void
   logout: () => Promise<void>
 }
 
@@ -26,8 +28,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isLoading: false,
+      hasHydrated: false,
       setUser: (user) => set({ user }),
       setLoading: (isLoading) => set({ isLoading }),
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
       logout: async () => {
         await fetch('/api/auth/logout', { method: 'POST' })
         set({ user: null })

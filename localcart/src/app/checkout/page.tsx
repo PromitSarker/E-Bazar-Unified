@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CustomerNavbar } from '@/components/layout/Navbar'
+import { AuthGuard } from '@/components/layout/AuthGuard'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { useCartStore } from '@/store/cart'
@@ -119,8 +120,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <CustomerNavbar />
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
+        <CustomerNavbar />
       <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
         <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
 
@@ -235,5 +237,6 @@ export default function CheckoutPage() {
         </Button>
       </main>
     </div>
+    </AuthGuard>
   )
 }

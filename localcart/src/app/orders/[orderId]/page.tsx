@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { CustomerNavbar } from '@/components/layout/Navbar'
+import { AuthGuard } from '@/components/layout/AuthGuard'
 import { Button } from '@/components/ui/Button'
 import { StatusTimeline } from '@/components/ui/StatusTimeline'
 import { Spinner } from '@/components/ui/Spinner'
@@ -72,17 +73,20 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
-      <CustomerNavbar />
-      <div className="flex justify-center py-20"><Spinner size="lg" /></div>
-    </div>
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
+        <CustomerNavbar />
+        <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+      </div>
+    </AuthGuard>
   )
 
   if (!order) return <div className="p-8 text-center text-gray-400">Order not found.</div>
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <CustomerNavbar />
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
+        <CustomerNavbar />
       <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Header */}
         <div>
@@ -169,5 +173,6 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         )}
       </main>
     </div>
+    </AuthGuard>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { CustomerNavbar } from '@/components/layout/Navbar'
+import { AuthGuard } from '@/components/layout/AuthGuard'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { QuantityStepper } from '@/components/ui/QuantityStepper'
@@ -79,13 +80,15 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <CustomerNavbar />
-        <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-          <SkeletonCard />
-          {[1,2,3,4].map(i => <SkeletonCard key={i} />)}
-        </main>
-      </div>
+      <AuthGuard>
+        <div className="min-h-screen bg-gray-50">
+          <CustomerNavbar />
+          <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+            <SkeletonCard />
+            {[1,2,3,4].map(i => <SkeletonCard key={i} />)}
+          </main>
+        </div>
+      </AuthGuard>
     )
   }
 
@@ -96,7 +99,8 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
   const todayHours = shop.operatingHours?.[dayKey]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
       <CustomerNavbar />
       <main className="max-w-2xl mx-auto px-4 pb-24">
         {/* Shop header */}
@@ -176,5 +180,6 @@ export default function ShopDetailPage({ params }: { params: Promise<{ shopId: s
         )}
       </main>
     </div>
+    </AuthGuard>
   )
 }

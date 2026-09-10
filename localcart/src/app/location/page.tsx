@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
 import { CustomerNavbar } from '@/components/layout/Navbar'
+import { AuthGuard } from '@/components/layout/AuthGuard'
 import { useToast } from '@/components/ui/Toast'
 import { useRouter } from 'next/navigation'
 
@@ -53,29 +54,31 @@ export default function LocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <CustomerNavbar />
-      <main className="max-w-lg mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-gray-900">Set your delivery address</h1>
-          <p className="text-sm text-gray-500 mt-1">We use this to show shops that can deliver to you.</p>
-        </div>
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
+        <CustomerNavbar />
+        <main className="max-w-lg mx-auto px-4 py-8">
+          <div className="mb-6">
+            <h1 className="text-xl font-bold text-gray-900">Set your delivery address</h1>
+            <p className="text-sm text-gray-500 mt-1">We use this to show shops that can deliver to you.</p>
+          </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-4">
-          <LocationPicker
-            initialLat={existing?.latitude}
-            initialLng={existing?.longitude}
-            onLocationChange={(newLat, newLng, addr) => {
-              setLat(newLat)
-              setLng(newLng)
-              if (addr) setAddress(addr)
-            }}
-          />
-          <Button fullWidth onClick={handleSave} loading={saving} disabled={!lat}>
-            Save location & find shops
-          </Button>
-        </div>
-      </main>
-    </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-4">
+            <LocationPicker
+              initialLat={existing?.latitude}
+              initialLng={existing?.longitude}
+              onLocationChange={(newLat, newLng, addr) => {
+                setLat(newLat)
+                setLng(newLng)
+                if (addr) setAddress(addr)
+              }}
+            />
+            <Button fullWidth onClick={handleSave} loading={saving} disabled={!lat}>
+              Save location & find shops
+            </Button>
+          </div>
+        </main>
+      </div>
+    </AuthGuard>
   )
 }

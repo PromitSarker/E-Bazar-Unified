@@ -35,7 +35,14 @@ export async function POST(request: Request) {
         isActive: user.isActive,
       },
     })
-    response.cookies.set(createAuthCookie(token))
+    const cookieOptions = createAuthCookie(token)
+    response.cookies.set(cookieOptions.name, cookieOptions.value, {
+      httpOnly: cookieOptions.httpOnly,
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
+      maxAge: cookieOptions.maxAge,
+      path: cookieOptions.path,
+    })
     return response
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -42,7 +42,14 @@ export async function POST(request: Request) {
         { message: 'Registered successfully', user: { id: user.id, name: user.name, email: user.email, role: user.role } },
         { status: 201 }
       )
-      response.cookies.set(createAuthCookie(token))
+      const cookieOptions = createAuthCookie(token)
+      response.cookies.set(cookieOptions.name, cookieOptions.value, {
+        httpOnly: cookieOptions.httpOnly,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
+        maxAge: cookieOptions.maxAge,
+        path: cookieOptions.path,
+      })
       return response
     }
 
@@ -85,7 +92,14 @@ export async function POST(request: Request) {
         },
         { status: 201 }
       )
-      response.cookies.set(createAuthCookie(token))
+      const cookieOptions = createAuthCookie(token)
+      response.cookies.set(cookieOptions.name, cookieOptions.value, {
+        httpOnly: cookieOptions.httpOnly,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
+        maxAge: cookieOptions.maxAge,
+        path: cookieOptions.path,
+      })
       return response
     }
 

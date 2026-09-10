@@ -36,6 +36,9 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/prisma ./prisma
 
+# Install OpenSSL (required by Prisma query engine on Alpine)
+RUN apk add --no-cache openssl
+
 # Entrypoint script — fix Windows line endings (CRLF → LF) and make executable
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN apk add --no-cache dos2unix && dos2unix ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
